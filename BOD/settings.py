@@ -121,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Karachi'
 USE_I18N = True
