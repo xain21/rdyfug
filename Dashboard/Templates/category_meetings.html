@@ -1,0 +1,214 @@
+{% extends 'index.html' %} {% block content %}
+<style>
+  body {
+    background-color: #f8f8f8;
+  }
+  .tableCustom {
+    border-collapse: separate;
+    border-spacing: 0 7px;
+  }
+  .tableCustom thead tr {
+    border-radius: 5px;
+  }
+  .tableCustom thead th {
+    background-color: #deecff;
+    color: #5e789a;
+    font-family: Arial;
+    padding: 10px 15px;
+    border: 1px solid #d3e6ff;
+    border-right: 0;
+    border-left: 0;
+    border-color: #d3e6ff !important;
+  }
+  .tableCustom thead th:nth-child(1) {
+    border-radius: 5px 0 0 5px;
+    border-left: 1px solid #d3e6ff;
+  }
+  .tableCustom thead th:nth-last-child(1) {
+    border-radius: 0 5px 5px 0;
+    border-right: 1px solid #d3e6ff;
+  }
+  .tableCustom tbody tr {
+    margin-top: 10px;
+    border: 1px solid #eaeaea;
+    border-radius: 5px;
+  }
+  .tableCustom tbody tr:hover td {
+    background-color: #f0f6ff;
+  }
+  .tableCustom tbody tr td {
+    transition: all 0.3s ease;
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    border-color: #eaeaea !important;
+    border-right: 0;
+    border-left: 0;
+    padding: 10px 15px;
+    color: #667085;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  .tableCustom tbody tr td:nth-child(1) {
+    border-radius: 5px 0 0 5px;
+    border-left: 1px solid #eaeaea;
+  }
+  .tableCustom tbody tr td:nth-last-child(1) {
+    border-radius: 0 5px 5px 0;
+    border-right: 1px solid #eaeaea;
+  }
+  .card-body {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  .pagination-option {
+    margin: 10px;
+    border: 1px solid black !important;
+    cursor: pointer !important;
+    border-radius: 100px !important;
+  }
+  .list-group-item {
+    color: black;
+    background-color: white;
+  }
+  .list-group-item-action:hover,
+  .list-group-item-action.active:hover {
+    background-color: #007bff;
+    color: white;
+  }
+  .list-group-item-action.active {
+    background-color: white;
+    color: black;
+    border: 1px solid #007bff;
+  }
+
+  .custom-back-button {
+    display: inline-flex;
+    align-items: center;
+    font-weight: bold;
+    text-decoration: none;
+    border: 2px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+  }
+
+  .custom-back-button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: white;
+  }
+
+  .btn-no-agenda {
+    background-color: red;
+    color: white;
+  }
+  .custom-btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+  }
+</style>
+
+<a href="javascript:history.back()" class="btn btn-primary custom-back-button">
+  <i class="fas fa-arrow-left"> Back</i>
+</a>
+
+{% if not request.GET.page %}
+<div class="container mt-4" style="min-height: 100vh">
+  <center>
+    <h3 class="text-center mb-4">{{ category.name }}</h3>
+    <form action="{% url 'category_search' category.slug %}" method="POST"
+        style="width: 50%; margin: 0 auto; margin-bottom: 30px;">
+        {% csrf_token %}
+        <div class="input-group">
+            <input type="text" name="search" placeholder="Search..." class="form-control"
+                style="width: 40%;">
+            <button type="submit" class="btn btn-primary search-button">Search</button>
+        </div>
+    </form>
+</center>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <ul class="list-group" id="selectmeetings">
+        {% for start, end in pagination_ranges %}
+        <li
+          class="list-group-item text-center list-group-item-action pagination-option {% if request.GET.page == forloop.counter %}active{% endif %}"
+          onclick="changePageSize({{ forloop.counter }})"
+        >
+          {{ start }} to {{ end }} {{ category.name }}
+        </li>
+        {% endfor %}
+      </ul>
+      {% if total_meetings == 0 %}
+        <p class="text-center text-muted mt-3">No meetings/documents found in {{ category.name }} yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %} {% if request.GET.page %}
+<div class="container mt-4" style="min-height: 70vh">
+  <center>
+    <h2>{{ category.name }}</h2>
+    <form
+      action="{% url 'category_search' category.slug %}"
+      method="POST"
+      style="width: 50%; margin: 0 auto; margin-bottom: 30px"
+    >
+      {% csrf_token %}
+      <div class="input-group">
+        <input
+          type="text"
+          name="search"
+          placeholder="Search..."
+          class="form-control"
+          style="width: 40%"
+          value="{{ search_term }}"
+        />
+        <button type="submit" class="btn btn-primary search-button">
+          Search
+        </button>
+      </div>
+    </form>
+  </center>
+
+  <div class="row" id="meetingList">
+    {% for meeting in meetings %}
+    <div class="col-md-4 d-block wow fadeInUp" data-wow-delay="0.1s" style="margin-bottom: 10px">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">{{ meeting.title }}</h6>
+          <h6 class="card-title">{{ meeting.date_display }}</h6>
+          <div class="mt-3 d-flex justify-content-between">
+
+            <a href="{% url 'meeting_details' meeting.id %}"
+            class="btn btn-sm {% if not meeting.has_agenda %}btn-danger{% else %}btn-primary{% endif %} custom-btn-sm">
+           Agenda
+         </a>
+            {% if meeting.pdf %}
+            <a
+              href="{% url 'download_meeting_pdf' meeting.id %}"
+              class="btn btn-sm btn-primary custom-btn-sm"
+              target="_blank"
+              >PDF</a
+            >
+            {% else %}
+            <a class="btn btn-sm btn-dark custom-btn-sm" target="_blank"
+              >No PDF</a
+            >
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<script>
+  function changePageSize(page) {
+    window.location.href = "{% url 'category_meetings' category.slug %}?page=" + page;
+  }
+</script>
+{% endblock %}

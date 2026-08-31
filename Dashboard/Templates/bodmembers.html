@@ -1,0 +1,575 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f8f8f8;
+    }
+
+    .tableCustom {
+        border-collapse: separate;
+        border-spacing: 0 7px;
+    }
+
+    .tableCustom thead tr {
+        border-radius: 5px;
+    }
+
+    .tableCustom thead th {
+        background-color: #deecff;
+        color: #5e789a;
+        font-family: Arial;
+        padding: 10px 15px;
+        border: 1px solid #d3e6ff;
+        border-right: 0;
+        border-left: 0;
+        border-color: #d3e6ff !important;
+    }
+
+    .tableCustom thead th:nth-child(1) {
+        border-radius: 5px 0 0 5px;
+        border-left: 1px solid #d3e6ff;
+    }
+
+    .tableCustom thead th:nth-last-child(1) {
+        border-radius: 0 5px 5px 0;
+        border-right: 1px solid #d3e6ff;
+    }
+
+    .tableCustom tbody tr {
+        margin-top: 10px;
+        border: 1px solid #eaeaea;
+        border-radius: 5px;
+    }
+
+    .tableCustom tbody tr:hover td {
+        background-color: #f0f6ff;
+    }
+
+    .tableCustom tbody tr td {
+        transition: all 0.3s ease;
+        background-color: #fff;
+        border: 1px solid #eaeaea;
+        border-color: #eaeaea !important;
+        border-right: 0;
+        border-left: 0;
+        padding: 10px 15px;
+        color: #667085;
+    }
+
+    .tableCustom tbody tr td:nth-child(1) {
+        border-radius: 5px 0 0 5px;
+        border-left: 1px solid #eaeaea;
+    }
+
+    .tableCustom tbody tr td:nth-last-child(1) {
+        border-radius: 0 5px 5px 0;
+        border-right: 1px solid #eaeaea;
+    }
+
+    h3 {
+        margin: 10px 0;
+    }
+
+    h6 {
+        margin: 5px 0;
+        text-transform: uppercase;
+    }
+
+    p {
+        font-size: 14px;
+        line-height: 21px;
+    }
+
+    .custom-back-button {
+        display: inline-flex;
+        align-items: center;
+        font-weight: bold;
+        text-decoration: none;
+        border: 2px solid #007bff;
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+
+    .custom-back-button:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+        color: white;
+    }
+
+    /* Notification Popup */
+    #notificationPopup {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    #notificationPopup .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+    }
+
+    @import url("https://fonts.googleapis.com/css?family=Montserrat");
+
+h3 {
+    margin: 10px 0;
+}
+
+h6 {
+    margin: 5px 0;
+    text-transform: uppercase;
+}
+
+p {
+    font-size: 14px;
+    line-height: 21px;
+}
+
+.card-container {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0px 10px 20px -10px rgba(15, 15, 15, 0.75);
+    color: #b3b8cd;
+    padding-top: 30px;
+    position: relative;
+    width: 350px;
+    max-width: 100%;
+    text-align: center;
+}
+
+.card-container .pro {
+    color: #ffffff;
+    background-color: #febb0b;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 3px 7px;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+}
+
+.card-container .round {
+    border: 1px solid #03bfcb;
+    border-radius: 50%;
+    padding: 7px;
+}
+
+button.primary {
+    background-color: #03bfcb;
+    border: 1px solid #03bfcb;
+    border-radius: 3px;
+    color: #231e39;
+    font-family: Montserrat, sans-serif;
+    font-weight: 500;
+    padding: 10px 25px;
+}
+
+button.primary.ghost {
+    background-color: transparent;
+    color: #02899c;
+}
+
+.skills {
+    background-color: #ffffff;
+    text-align: left;
+    padding: 15px;
+    margin-top: 30px;
+}
+
+.skills ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.skills ul li {
+    border: 1px solid #2d2747;
+    border-radius: 2px;
+    display: inline-block;
+    font-size: 12px;
+    margin: 0 7px 7px 0;
+    padding: 7px;
+}
+
+footer {
+    background-color: #ffffff;
+    color: #fff;
+    font-size: 14px;
+    bottom: 0;
+    position: fixed;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 999;
+}
+
+footer p {
+    margin: 10px 0;
+}
+
+footer i {
+    color: red;
+}
+
+footer a {
+    color: #3c97bf;
+    text-decoration: none;
+}
+
+.chairman-style {
+    background-color: rgb(255, 255, 255);
+}
+
+.chiarmantags {
+    background-color: #000000 !important;
+}
+
+#personimg {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 10px;
+}
+
+span {
+    color: rgb(0, 0, 0);
+    font-weight: 700;
+}
+
+.member-details {
+    color: rgba(0, 0, 0, 0.623);
+}
+
+a.btn.btn-link {
+    margin-top: 10px;
+    margin-left: 30px;
+}
+
+.content-container {
+    color: var(#deecff);
+}
+
+.custom-back-button {
+    display: inline-flex;
+    align-items: center;
+    font-weight: bold;
+    text-decoration: none;
+    border: 2px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.custom-back-button i {
+    margin-right: 5px;
+}
+
+.custom-back-button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: white;
+    text-decoration: none;
+}
+</style>
+<a href="javascript:history.back()" class="btn btn-primary custom-back-button">
+    <i class="fas fa-arrow-left"> Back</i>
+  </a>
+  
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- Include Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+
+
+<div class="container mt-4 wow fadeIn" data-wow-delay="0.05s" style="width: 80%; height: 80vh;">
+    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
+
+    <table class="table tableCustom" cellpadding="10px">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Notification</th>
+                <th>Members</th>
+                <th>Committee</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bod_member in departments_with_members %}
+            <tr>
+                <td>{{ bod_member.bod_member.title }}</td>
+                <td>{{ bod_member.bod_member.from_date|date:"d-m-Y" }}</td>
+                <td>{{ bod_member.bod_member.to_date|date:"d-m-Y" }}</td>
+                <td>
+                    <button data-notification-id="{{ bod_member.bod_member.notification.id }}"
+                        class="btn btn-xs btn-primary notification">Show Notification</button>
+                </td>
+                <td>
+                    <a href="{% url 'view_member_details' bod_member.bod_member.id %}"
+                        class="btn btn-xs btn-success">Members</a>
+                </td>
+                <td>
+                    <select class="form-control departmentSelect" data-member-id="{{ bod_member.bod_member.id }}"
+                        onchange="getMembers('{{bod_member.bod_member.id}}', this)">
+                        <option value="" selected disabled>Select Committee</option>
+                        {% for department in bod_member.departments %}
+                        <option value="{{ department.id }}">{{ department }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+
+<!-- Modal for Notification -->
+<div class="modal" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notification</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="background-color: #f8f9fa;">
+                <input type="hidden" id="notificationId" value="">
+                <h4>Title:</h4>
+                <div class="notification-title"></div>
+                <hr>
+                <h4>Description:</h4>
+                <div class="notification-description"></div>
+                <hr>
+                <h4>File:</h4>
+                <div class="embed-responsive embed-responsive-4by3">
+                    <iframe id="pdfViewer" class="d-none" style="width:100%; height:500px;" frameborder="0"></iframe>
+                    <img id="notificationImage" class="d-none" style="max-width:100%; max-height:500px;" alt="Notification image">
+                </div>
+                <div class="text-center mt-2">
+                    <span class="no-pdf text-danger d-none">No file found</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Notification Popup -->
+<div id="notificationPopup" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <h5 class="popup-message"></h5>
+                <button type="button" class="btn btn-primary" id="closePopupButton">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button type="button" class="hidden" id="memberModalButton" data-bs-toggle="modal"
+    data-bs-target="#memberdsModal"></button>
+
+<div class="modal" id="memberdsModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Members</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="background-color: #f8f9fa;" id="member_modal_body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <button class="btn btn-sm show-details">
+    <i class="fas fa-eye"></i> -->
+
+<script>
+    async function getMembers(id, event) {
+        const dpt = event?.value
+        const body = document.getElementById("member_modal_body")
+        const btn = document.getElementById("memberModalButton")
+        body.innerHTML = ""
+        let headersList = {
+            "Accept": "*/*"
+        }
+
+        let response = await fetch(location.origin + `/api/members/${id}/?department=${dpt}`, {
+            method: "GET",
+            headers: headersList
+        });
+
+        let data = await response.text();
+        btn.click()
+
+        let cards = ``
+        // console.log(data)
+        // console.log(JSON.parse(data))
+        
+        for (let item of JSON.parse(data)) {
+            // console.log(item)
+            const elem = `
+                <div style="width: 300px!important; height: 250px!important">
+                    <div style="width: 300px!important; height: 250px!important" class="card-container p-4 ${item.designation_name?.Designation_name == 'Chairman' ? 'chairman-style' : ''}">
+                        <span class="pro ${item.designation_name?.Designation_name == 'Chairman' ? 'chiarmantags' : ''}">
+                            ${item.designation_name?.Designation_name}
+                        </span>
+                        <img class="round" id="personimg" 
+                            src="${item.image ? item.image : '/media/member_image/default.jpg'}" 
+                            alt="user" />
+                        <h5>${item.name}</h5>
+                       
+                        </button>
+                        <div class="details" style="display: none; text-align: justify">
+                            <div class="member-details">
+                                <span>Department:</span> ${item.department_name?.Department_name}
+                            </div>
+                            <div class="member-details">
+                                <span>Address:</span> ${item.address}
+                            </div>
+                            <div class="member-details">
+                                <span>Email:</span> ${item.email}
+                            </div>
+                            <div class="member-details">
+                                <span>Phone:</span> ${item.phone}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+            cards = cards + elem
+        }
+        const elems = `
+            <div class="row g-4">
+                ${cards}
+            </div>
+        `
+
+        body.innerHTML = elems
+
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        // Event listener for department selection change
+        $('.departmentSelect').change(function () {
+            var departmentId = $(this).val();
+            var memberId = $(this).data('member-id'); // Now this will work
+
+            // Check if both IDs are available
+            if (departmentId && memberId) {
+                $.ajax({
+                    url: "/committee-users/" + departmentId + "/" + memberId + "/", // Correct URL formation
+                    method: 'GET',
+                    success: function (data) {
+                        // Handle success
+                        // Example: Clear previous members and show the new list
+                        $('#membersUl').empty(); // Make sure you have this element in your HTML
+
+                        if (data.length > 0) {
+                            $.each(data, function (index, member) {
+                                $('#membersUl').append('<li>' + member.name + ' - ' + member.email + '</li>');
+                            });
+                        } else {
+                            $('#membersUl').append('<li>No members found.</li>');
+                        }
+                    },
+                    error: function () {
+                        console.error("Error fetching members.");
+                    }
+                });
+            } else {
+                console.warn("Department ID or Member ID is missing.");
+            }
+        });
+
+        // Event listener for notification buttons
+        $('.notification').on('click', function () {
+            console.log('Notification button clicked'); // Log when clicked
+            var notificationId = $(this).data('notification-id');
+
+            // AJAX call to fetch notification data
+            $.ajax({
+                url: '/notification/' + notificationId + '/', // Ensure this path is correct
+                method: 'GET',
+                cache: false,
+                success: function (data) {
+                    $('#notificationId').val(notificationId);
+                    $('.notification-title').text(data.title);
+                    $('.notification-description').text(data.description);
+
+                    if (data.file_url) {
+                        $('#pdfViewer').attr('src', data.file_url).removeClass('d-none');
+                    } else {
+                        $('#pdfViewer').attr('src', '').addClass('d-none');
+                    }
+
+                    if (data.image_url) {
+                        $('#notificationImage').attr('src', data.image_url).removeClass('d-none');
+                    } else {
+                        $('#notificationImage').attr('src', '').addClass('d-none');
+                    }
+
+                    $('.no-pdf').toggleClass('d-none', !!(data.file_url || data.image_url));
+
+                    $('#myModal').modal('show');
+                },
+                error: function () {
+                    // Show popup for no notifications
+                    $('.popup-message').text('There are no notifications.');
+                    $('#notificationPopup').modal('show');
+                }
+            });
+        });
+
+        // Close button for the modal
+        $('#closePopupButton').on('click', function () {
+            console.log('Close button clicked'); // Check if this logs
+            $('#myModal').modal('hide'); // Hide the modal when close is clicked
+        });
+
+        // Reset modal fields on close
+        $('#myModal').on('hidden.bs.modal', function () {
+            $('#notificationId').val('');
+            $('.notification-title').text('');
+            $('.notification-description').text('');
+            $('#pdfViewer').attr('src', '').addClass('d-none');
+            $('#notificationImage').attr('src', '').addClass('d-none');
+            $('.no-pdf').addClass('d-none');
+        });
+
+        // Debugging: Check if the close button exists and is clickable
+        console.log('Close button:', $('#closePopupButton')); // Debug log
+    });
+</script>
+{% endblock %}

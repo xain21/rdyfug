@@ -1,0 +1,161 @@
+{% extends 'index.html' %} {% load static %} {% block content %}
+
+<style>
+  .cat-item {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.11); /* Adjust these values */
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.cat-item:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+}
+</style>
+<!-- Hero Start -->
+<div class="container-xxl pt-5 pt-md-4">
+  <div class="container">
+    <div class="hz-hero wow fadeIn" data-wow-delay="0.05s">
+      <h1 class="mb-2">Welcome back{% if request.user.first_name %}, {{ request.user.first_name }}{% elif request.user.username %}, {{ request.user.username }}{% endif %}</h1>
+      <p class="mb-0">Every committee, meeting, and document in one searchable place - text and scanned pages included.</p>
+
+      <div class="hz-stats">
+        <div class="hz-stat-card">
+          <div class="hz-stat-number"><span class="hz-counter" data-target="{{ categories|length }}">0</span></div>
+          <div class="hz-stat-label">Active Committees</div>
+        </div>
+        <div class="hz-stat-card">
+          <div class="hz-stat-number"><span class="hz-counter" data-target="{{ results|length }}">0</span></div>
+          <div class="hz-stat-label">Meetings &amp; Documents</div>
+        </div>
+        <div class="hz-stat-card">
+          <div class="hz-stat-number"><span class="hz-counter" data-target="{{ meetings_this_month }}">0</span></div>
+          <div class="hz-stat-label">Meetings This Month</div>
+        </div>
+        <div class="hz-stat-card">
+          <a href="{% url 'action_items_list' %}?status=open" class="text-decoration-none">
+            <div class="hz-stat-number"><span class="hz-counter" data-target="{{ open_action_items }}">0</span></div>
+            <div class="hz-stat-label">Open Action Items{% if overdue_action_items %} <span class="badge bg-danger">{{ overdue_action_items }} overdue</span>{% endif %}</div>
+          </a>
+        </div>
+        <div class="hz-stat-card">
+          <div class="hz-stat-number"><span class="hz-counter" data-target="{{ pending_approvals }}">0</span></div>
+          <div class="hz-stat-label">Pending Approval</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Hero End -->
+
+<!-- Category Start -->
+<div class="container-xxl py-5">
+  <div class="container">
+    <div class="container">
+      <h2 class="text-center mb-4">BOD Data Base</h2>
+
+      <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px">
+        <form method="POST" action="{% url 'search' %}">
+            {% csrf_token %}
+            <div class="input-group">
+              <input type="text" name="search" id="search-input" placeholder="Search..." class="form-control"
+                  style="width: 40%; font-weight: bold; box-shadow: inset 0px 1px 4px rgba(0, 0, 0, 0.2);"
+                  >
+              <button type="submit" class="btn btn-primary search-button">Search</button>
+          </div>
+          <div class="d-flex justify-content-center mt-2" style="gap: 20px;">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="search_mode" id="search-mode-text" value="text">
+              <label class="form-check-label" for="search-mode-text" title="Searches only normal, selectable PDF text. Faster.">
+                Text only
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="search_mode" id="search-mode-ocr" value="ocr" checked>
+              <label class="form-check-label" for="search-mode-ocr" title="Searches normal PDF text AND scanned/image text via OCR. Slower, more thorough.">
+                Text + OCR (scanned pages)
+              </label>
+            </div>
+          </div>
+
+        </form>
+    </div>
+    <!-- <input type="search" name="search" class="form-control rounded-pill search-input" placeholder="Search..." required /> -->
+
+    <div class="row g-3">
+      <div class="col-lg-4 col-sm-12 wow fadeInUp" data-wow-delay="0.1s">
+        <a
+          class="cat-item d-block bg-light text-center rounded p-3"
+          href="{% url 'view_members' %}"
+        >
+          <div class="rounded p-4">
+            <div class="icon mb-3">
+              <img
+                style="width: 50px"
+                class="img-fluid"
+                src="{% static 'assets/home/img/people.png' %}"
+                alt="Icon"
+              />
+            </div>
+            <h6>BOD Members</h6>
+          </div>
+        </a>
+      </div>
+
+
+
+        {% comment %}
+          Fully dynamic committee/category cards. Every active CommitteeType
+          record (created and managed from Django Admin -> Committee Types)
+          renders here automatically with the SAME card markup/styling used
+          above - no template edits are ever needed to add a new category
+          such as "IT Support" or "Legal Committee".
+        {% endcomment %}
+        {% for category in categories %}
+        <div class="col-lg-4 col-sm-12 wow fadeInUp" data-wow-delay="0.{{ forloop.counter }}s">
+          <a
+            class="cat-item d-block bg-light text-center rounded p-3"
+            href="{% url 'category_meetings' category.slug %}"
+          >
+            <div class="rounded p-4">
+              <div class="icon mb-3">
+                <img
+                  style="width: 50px"
+                  class="img-fluid"
+                  src="{% static category.icon %}"
+                  alt="Icon"
+                />
+              </div>
+              <h6>{{ category.name }}</h6>
+            </div>
+          </a>
+        </div>
+        {% empty %}
+        <div class="col-12">
+          <p class="text-center text-muted">
+            No committees/categories have been added yet. An administrator can add one from
+            Django Admin &rarr; Committee Types.
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $(".search-input").on("keyup", function () {
+      var value = $(this).val().toLowerCase();
+      $(".cat-item").each(function () {
+        var text = $(this).find("h6").text().toLowerCase(); // Targeting the <h6> element for search
+        if (text.includes(value)) {
+          $(this).parent().show(); // Show the parent container
+        } else {
+          $(this).parent().hide(); // Hide the parent container
+        }
+      });
+    });
+  });
+</script>
+<!-- Category End -->
+{% endblock %}

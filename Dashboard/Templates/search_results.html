@@ -1,0 +1,129 @@
+{% extends 'index.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <a href="javascript:history.back()" class="btn btn-primary custom-back-button mb-4">
+    <i class="fas fa-arrow-left"></i> Back
+  </a>
+  
+  <h5 class="mb-1">Search Results for '{{ search_term }}'</h5>
+  {% if search_mode %}
+  <p class="text-muted mb-4">
+    Mode:
+    {% if search_mode == 'ocr' %}
+      <span class="badge bg-primary">Text + OCR (scanned pages)</span>
+    {% else %}
+      <span class="badge bg-secondary">Text only</span>
+    {% endif %}
+  </p>
+  {% else %}
+  <div class="mb-4"></div>
+  {% endif %}
+
+  <div class="row wow fadeIn" data-wow-delay="0.05s">
+    <!-- Meeting search -->
+    <h5 class="card-subtitle mb-2 text-muted">Meeting Results:</h5>
+    {% for meeting in meetings %}
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h6 class="card-title">Title: {{ meeting.title|highlight:search_term|safe }}</h6>
+          <h6 class="card-subtitle mb-2 text-muted">Source: Meeting</h6>
+          <p class="card-subtitle mb-2 text-muted">{{ meeting.date }}</p>
+          <p class="card-text">Category: {{ meeting.category.name|default:"Uncategorized" }}</p>
+          <a class="btn btn-sm btn-primary" href="{% url 'meeting_details' meeting.id %}">Details</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <hr />
+
+    <!-- Agenda search -->
+    <h5 class="card-subtitle mb-2 text-muted">Agendas Results:</h5>
+    {% if agendas %}
+    {% for agenda in agendas %}
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h6 class="card-title">Source: {{ agenda.add_meeting.title|highlight:search_term|safe }}</h6>
+          <h6 class="card-title">Agenda: {{ agenda.title|highlight:search_term|safe }}</h6>
+          <p class="card-text">Category: {{ agenda.add_meeting.category.name|default:"Uncategorized" }}</p>
+          <a class="btn btn-sm btn-primary" href="{% url 'meeting_details' agenda.add_meeting.id %}">Details</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>No agendas available.</p>
+    {% endif %}
+    <hr />
+
+    <!-- Sub-Agenda search -->
+    <h5 class="card-subtitle mb-2 text-muted">Sub-Agenda Results:</h5>
+    {% if sub_agendas %}
+    {% for sub_agenda in sub_agendas %}
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h6 class="card-title">Title: {{ sub_agenda.subagenda_title|highlight:search_term|safe }}</h6>
+          <h6 class="card-subtitle mb-2 text-muted">Parent Agenda: {{ sub_agenda.agenda.title|highlight:search_term|safe }}</h6>
+          <p class="card-text">Category: {{ sub_agenda.bod_meeting.category.name|default:"Uncategorized" }}</p>
+          <a class="btn btn-sm btn-primary" href="{% url 'meeting_details' sub_agenda.bod_meeting.id %}">Details</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>No sub-agendas found.</p>
+    {% endif %}
+    <hr />
+    <h5 class="card-subtitle mb-2 text-muted">PDF Results:</h5>
+    {% if pdf_results %}
+      {% for result in pdf_results %}
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <div class="card-body">
+              <h6 class="card-title">Meeting: {{ result.meeting.title }}</h6>
+              <h6 class="card-subtitle mb-2 text-muted">Category: {{ result.category }}</h6>
+              <h6 class="card-subtitle mb-2 text-muted">Page: {{ result.page_number }}</h6>
+              
+              {% if result.snippet %}
+                <p><strong>Context:</strong> {{ result.snippet|highlight:search_term|safe }}</p>
+              {% else %}
+                <p><strong>No context found for the search term in this page.</strong></p>
+              {% endif %}
+              
+              <a class="btn btn-sm btn-primary" href="{{ result.pdf_url }}#page={{ result.page_number }}" target="_blank">
+                Open PDF
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No PDF results found.</p>
+    {% endif %}
+    
+    <!-- Sub-Sub-Agenda search -->
+    <h5 class="card-subtitle mb-2 text-muted">Sub-Sub-Agenda Results:</h5>
+    {% if sub_sub_agendas %}
+    {% for sub_sub_agenda in sub_sub_agendas %}
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h6 class="card-title">Title: {{ sub_sub_agenda.subagenda_title|highlight:search_term|safe }}</h6>
+          <h6 class="card-subtitle mb-2 text-muted">Parent Sub-Agenda: {{ sub_sub_agenda.sub_sub_agenda.subagenda_title|highlight:search_term|safe }}</h6>
+          <p class="card-text">Category: {{ sub_sub_agenda.sub_sub_agenda.bod_meeting.category.name|default:"Uncategorized" }}</p>
+          <a class="btn btn-sm btn-primary" href="{% url 'meeting_details' sub_sub_agenda.sub_sub_agenda.bod_meeting.id %}">Details</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>No sub-sub-agendas found.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

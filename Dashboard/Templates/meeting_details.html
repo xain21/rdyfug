@@ -1,0 +1,273 @@
+{% extends 'index.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<style>
+  .card:hover { cursor: pointer; }
+  .modal-dialog { max-width: 600px; }
+  .modal-body iframe { width: 100%; height: 400px; }
+  .custom-back-button {
+      display: inline-flex;
+      align-items: center;
+      font-weight: bold;
+      text-decoration: none;
+      border: 2px solid #007bff;
+      background-color: #007bff;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+  }
+  .custom-back-button i { margin-right: 5px; }
+  .custom-back-button:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+      color: white;
+      text-decoration: none;
+  }
+
+  /* Styling for Sub-Agenda and Inline Sub-Agenda cards */
+  .subagendas-list { 
+    margin-left: 50px; 
+  }
+
+  /* Additional styling for inline sub-agenda cards */
+  .inline-subagenda { 
+    margin-left: 0px;
+    margin-top: 10px;
+  }
+</style>
+
+<a href="javascript:history.back()" class="btn btn-primary custom-back-button">
+  <i class="fas fa-arrow-left"></i> Back
+</a>
+
+<div class="container wow fadeIn" data-wow-delay="0.05s">
+  <div class="row">
+    <div class="col-md-12 mt-4">
+      <h3>Agendas</h3>
+      <h3>{{ meeting.title }}</h3>
+      <p>{{ meeting.description|safe }}</p>
+      <p><strong>Committee/Category:</strong> <span class="highlight">{{ meeting.category.name|default:"Uncategorized"|upper }}</span></p>
+      <p>
+        <strong>Approval Status:</strong>
+        {% if meeting.approval_status == 'approved' %}
+          <span class="badge bg-success">Approved</span>
+        {% elif meeting.approval_status == 'reviewed' %}
+          <span class="badge bg-warning text-dark">Reviewed</span>
+        {% else %}
+          <span class="badge bg-secondary">Draft</span>
+        {% endif %}
+        {% if meeting.approved_by %}
+          <span class="text-muted" style="font-size: 0.9em;">— last updated by {{ meeting.approved_by.username }} on {{ meeting.approved_at|date:"d M Y" }}</span>
+        {% endif %}
+      </p>
+      {% if request.user.is_staff or request.user.is_superuser %}
+      <form method="post" action="{% url 'update_meeting_approval' meeting.id %}" class="d-flex align-items-center" style="gap: 8px;">
+        {% csrf_token %}
+        <select name="approval_status" class="form-select form-select-sm" style="width: auto;">
+          {% for value, label in approval_choices %}
+            <option value="{{ value }}" {% if meeting.approval_status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-sm btn-primary">Update Status</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if action_items %}
+  <div class="row mt-3">
+    <div class="col-md-12">
+      <h4>Action Items</h4>
+      <table class="table table-sm table-bordered">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Assigned To</th>
+            <th>Due Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in action_items %}
+          <tr{% if item.is_overdue %} class="table-danger"{% endif %}>
+            <td>{{ item.description }}</td>
+            <td>{{ item.assigned_to.get_full_name|default:item.assigned_to.username|default:"Unassigned" }}</td>
+            <td>{{ item.due_date|default:"—" }}{% if item.is_overdue %} <span class="badge bg-danger">Overdue</span>{% endif %}</td>
+            <td>
+              {% if item.status == 'done' %}
+                <span class="badge bg-success">Done</span>
+              {% elif item.status == 'in_progress' %}
+                <span class="badge bg-warning text-dark">In Progress</span>
+              {% else %}
+                <span class="badge bg-secondary">Open</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row mt-3">
+    <div class="col-md-6">
+      <h4>Document Versions</h4>
+      {% if document_versions %}
+        <table class="table table-sm table-bordered">
+          <thead><tr><th>Version</th><th>Uploaded</th><th>By</th><th></th></tr></thead>
+          <tbody>
+            {% for version in document_versions %}
+            <tr>
+              <td>v{{ version.version_number }}</td>
+              <td>{{ version.uploaded_at|date:"d M Y, H:i" }}</td>
+              <td>{{ version.uploaded_by.username|default:"—" }}</td>
+              <td><a href="{{ version.file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">Download</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted">No earlier versions — this is the only file that has ever been attached.</p>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <h4>Signatures</h4>
+      <p class="text-muted small">Internal sign-off record for this document — typed name, timestamp, and IP address. Not a certified legal e-signature.</p>
+      {% if signatures %}
+        <ul class="list-group mb-3">
+          {% for sig in signatures %}
+            <li class="list-group-item d-flex justify-content-between">
+              <span>{{ sig.signed_name }}</span>
+              <span class="text-muted small">{{ sig.signed_at|date:"d M Y, H:i" }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">No one has signed this document yet.</p>
+      {% endif %}
+
+      {% if user_has_signed %}
+        <p class="text-success">You have already signed this document.</p>
+      {% else %}
+        <form method="post" action="{% url 'sign_meeting' meeting.id %}" class="d-flex" style="gap: 8px;">
+          {% csrf_token %}
+          <input type="text" name="signed_name" class="form-control form-control-sm" placeholder="Type your full name to sign"
+                 value="{{ request.user.get_full_name|default:request.user.username }}" required>
+          <button type="submit" class="btn btn-sm btn-primary">Sign</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-md-12">
+      {% if meeting.date %}
+        <a href="{% url 'meeting_ical' meeting.id %}" class="btn btn-sm btn-outline-primary">
+          <i class="fas fa-calendar-plus"></i> Add to Calendar (.ics)
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if agenda_list %}
+  <div class="row mt-3">
+    <div class="col-md-12">
+      <h4>Agendas:</h4>
+    </div>
+  </div>
+
+  <div class="row mt-2">
+    {% for item in agenda_list %}
+      <div class="col-md-12">
+        <div class="card mb-3 agenda-title" data-description="{{ item.agenda.description|safe }}"{% if item.agenda.pdf %} data-pdf="{{ item.agenda.pdf.url }}"{% endif %}>
+          <div class="card-body">
+            <h6 class="m-1">{{ forloop.counter }} : {{ item.agenda.title }}</h6>
+          </div>
+        </div>
+
+        {% if item.sub_agendas %}
+          <!-- Iterate through sub-agendas and display each one in its own separate card -->
+          <div class="subagendas-list">
+            {% for subagenda in item.sub_agendas %}
+              <!-- Sub-Agenda Card -->
+              <div class="card mb-3 subagenda-title" data-description="{{ subagenda.subagenda_description|safe }}">
+                <div class="card-body">
+                  <!-- Display alphabetical index for sub-agendas -->
+                  <h6 class="m-1">{{ forloop.counter|to_alpha }} : {{ subagenda.subagenda_title }}</h6>
+                </div>
+              </div>
+
+              {% if subagenda.sub_sub_agendas %}
+                <!-- Inline Sub-Agendas -->
+                <div class="inline-subagendas">
+                  {% for sub_sub_agenda in subagenda.sub_sub_agendas %}
+                    <!-- Inline Sub-Agenda Card -->
+                    <div class="card mb-3 inline-subagenda">
+                      <div class="card-body">
+                        <!-- Display inline sub-agenda (B, C, D, ...) -->
+                        <h6>{{ forloop.counter|add:1|to_alpha }} : {{ sub_sub_agenda.subagenda_title }}</h6>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="row">
+      <div class="col-md-12">
+        <p>No agendas found for this meeting.</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="modal fade" style="z-index: 10000 !important;" id="agendaModal" tabindex="-1"
+   aria-labelledby="agendaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="agendaModalLabel">Agenda Description</h5>
+          </div>
+          <div class="modal-body">
+              <p id="agendaDescription"></p>
+              <iframe id="pdfFrame" src="" frameborder="0" style="display: none; width: 100%; height: 400px;"></iframe>
+              <p id="pdfErrorMessage" style="display: none; color: red;">No working paper available.</p>
+          </div>
+      </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll('.agenda-title').forEach(function (element) {
+          element.addEventListener('click', function () {
+              const description = this.dataset.description;
+              const pdfUrl = this.dataset.pdf;
+
+              document.getElementById('agendaDescription').innerHTML = description;
+
+              if (pdfUrl && pdfUrl.trim()) {
+                  document.getElementById('pdfFrame').setAttribute('src', pdfUrl);
+                  document.getElementById('pdfFrame').style.display = 'block';
+                  document.getElementById('pdfErrorMessage').style.display = 'none';
+              } else {
+                  document.getElementById('pdfFrame').style.display = 'none';
+                  document.getElementById('pdfErrorMessage').style.display = 'block';
+              }
+
+              const agendaModal = new bootstrap.Modal(document.getElementById('agendaModal'));
+              agendaModal.show();
+          });
+      });
+  });
+</script>
+
+{% endblock %}

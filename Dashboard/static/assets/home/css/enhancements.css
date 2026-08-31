@@ -1,0 +1,226 @@
+/* ==========================================================================
+   HAZECO BOD Portal - visual enhancements
+   Loaded on every page (via index.html), AFTER style.css, so it can safely
+   layer on top of the existing design instead of replacing it. Targets the
+   class names already used throughout the templates (.card, .card-container,
+   .cat-item, .tableCustom, .btn, .modal-content, etc.) so every page that
+   already uses these gets the upgrade automatically - no per-page rewrite.
+   ========================================================================== */
+
+:root {
+  --hz-primary: var(--primary, #34b4eb);
+  --hz-secondary: var(--secondary, #FF6922);
+  --hz-dark: var(--dark, #0E2E50);
+  --hz-light: var(--light, #EFFDF5);
+  --hz-shadow-sm: 0 2px 8px rgba(14, 46, 80, 0.08);
+  --hz-shadow-md: 0 10px 24px rgba(14, 46, 80, 0.12);
+  --hz-shadow-lg: 0 18px 40px rgba(14, 46, 80, 0.16);
+  --hz-radius: 14px;
+}
+
+html { scroll-behavior: smooth; }
+
+/* Gentle whole-page entrance - subtle, not distracting */
+body {
+  animation: hzPageIn .45s ease both;
+}
+@keyframes hzPageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Cards & category tiles ------------------------------------------- */
+.card,
+.card-container,
+.cat-item {
+  border-radius: var(--hz-radius) !important;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s ease, border-color .28s ease;
+  box-shadow: var(--hz-shadow-sm);
+}
+
+.card:hover,
+.card-container:hover,
+.cat-item:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--hz-shadow-lg);
+}
+
+.cat-item {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+.cat-item:hover {
+  border-color: rgba(52, 180, 235, 0.35);
+}
+.cat-item .icon img {
+  transition: transform .35s ease;
+}
+.cat-item:hover .icon img {
+  transform: scale(1.12) rotate(-4deg);
+}
+
+/* ---- Buttons ------------------------------------------------------------ */
+.btn {
+  border-radius: 8px !important;
+  font-weight: 600;
+  letter-spacing: .2px;
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+.btn:active {
+  transform: translateY(0);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--hz-primary), #1f8fc4);
+  border: none;
+  box-shadow: 0 6px 16px rgba(52, 180, 235, 0.35);
+}
+.btn-primary:hover {
+  box-shadow: 0 10px 22px rgba(52, 180, 235, 0.45);
+}
+.btn-success {
+  box-shadow: 0 6px 16px rgba(25, 135, 84, 0.28);
+}
+.btn-danger {
+  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.28);
+}
+.custom-back-button {
+  transition: transform .18s ease, box-shadow .18s ease;
+  box-shadow: var(--hz-shadow-sm);
+}
+.custom-back-button:hover {
+  transform: translateX(-4px);
+}
+
+/* ---- Tables --------------------------------------------------------- */
+.tableCustom tbody tr,
+.table tbody tr {
+  transition: background-color .18s ease, transform .18s ease;
+}
+.tableCustom tbody tr:hover,
+.table tbody tr:hover {
+  transform: scale(1.003);
+}
+
+/* ---- Inputs ---------------------------------------------------------- */
+.form-control,
+.form-select {
+  border-radius: 8px;
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--hz-primary);
+  box-shadow: 0 0 0 4px rgba(52, 180, 235, 0.15);
+}
+
+/* ---- Modals ------------------------------------------------------------ */
+.modal.show .modal-dialog {
+  animation: hzModalIn .28s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes hzModalIn {
+  from { opacity: 0; transform: translateY(-16px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-content {
+  border-radius: var(--hz-radius);
+  border: none;
+  box-shadow: var(--hz-shadow-lg);
+}
+
+/* ---- Badges ------------------------------------------------------------ */
+.badge {
+  border-radius: 999px;
+  padding: .45em .8em;
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+
+/* ---- Scrollbar (Chromium/Edge/Safari) ----------------------------------- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--hz-primary), var(--hz-dark));
+  border-radius: 999px;
+}
+
+/* ---- Back to top button -------------------------------------------------- */
+.back-to-top {
+  box-shadow: var(--hz-shadow-md);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.back-to-top:hover {
+  transform: translateY(-4px) scale(1.05);
+}
+
+/* ---- Hero / stats block (used on homepage) ------------------------------ */
+.hz-hero {
+  background: linear-gradient(120deg, var(--hz-dark) 0%, #123a63 55%, var(--hz-primary) 130%);
+  border-radius: 22px;
+  color: #fff;
+  padding: 3rem 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--hz-shadow-lg);
+}
+.hz-hero::before {
+  content: "";
+  position: absolute;
+  inset: -40% -10% auto auto;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(255,255,255,0.14), transparent 65%);
+  border-radius: 50%;
+}
+.hz-hero h1 {
+  font-weight: 800;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+}
+.hz-hero p {
+  color: rgba(255,255,255,0.85);
+  max-width: 640px;
+}
+
+.hz-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+.hz-stat-card {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 14px;
+  padding: 1rem 1.4rem;
+  min-width: 150px;
+  transition: transform .25s ease, background .25s ease;
+}
+.hz-stat-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255,255,255,0.18);
+}
+.hz-stat-number {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.hz-stat-label {
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: rgba(255,255,255,0.75);
+  margin-top: .25rem;
+}
+
+/* Respect users who've asked for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

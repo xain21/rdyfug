@@ -1,0 +1,67 @@
+{% extends 'index.html' %}
+{% block content %}
+<div class="container wow fadeIn" data-wow-delay="0.05s">
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <h3>Document Access Log</h3>
+      <p class="text-muted">Audit trail of who viewed or downloaded which meeting/document, and when. Visible to staff and admins only. {{ total }} record{{ total|pluralize }} total.</p>
+
+      <form method="get" class="d-flex flex-wrap align-items-center mb-3" style="gap: 10px;">
+        <select name="action" class="form-select" style="width: auto;" onchange="this.form.submit()">
+          <option value="">All actions</option>
+          <option value="view" {% if action_filter == 'view' %}selected{% endif %}>Viewed details</option>
+          <option value="download" {% if action_filter == 'download' %}selected{% endif %}>Downloaded PDF</option>
+        </select>
+        <input type="text" name="search" class="form-control" style="width: 220px;" placeholder="Search user or meeting"
+               value="{{ search_term }}">
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+      </form>
+
+      <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>When</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Meeting</th>
+            <th>Category</th>
+            <th>IP Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td>{{ log.timestamp|date:"d M Y, H:i" }}</td>
+            <td>{{ log.user.username|default:"Unknown" }}</td>
+            <td>
+              {% if log.action == 'download' %}
+                <span class="badge bg-info text-dark">Downloaded</span>
+              {% else %}
+                <span class="badge bg-secondary">Viewed</span>
+              {% endif %}
+            </td>
+            <td>{% if log.meeting %}<a href="{% url 'meeting_details' log.meeting.id %}">{{ log.meeting.title|truncatechars:40 }}</a>{% else %}—{% endif %}</td>
+            <td>{{ log.meeting.category.name|default:"—" }}</td>
+            <td>{{ log.ip_address|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center text-muted">No activity recorded yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% if total_pages > 1 %}
+      <div class="d-flex" style="gap: 6px;">
+        {% if page > 1 %}
+          <a class="btn btn-sm btn-outline-primary" href="?page={{ page|add:'-1' }}&action={{ action_filter }}&search={{ search_term }}">Previous</a>
+        {% endif %}
+        <span class="align-self-center text-muted">Page {{ page }} of {{ total_pages }}</span>
+        {% if page < total_pages %}
+          <a class="btn btn-sm btn-outline-primary" href="?page={{ page|add:'1' }}&action={{ action_filter }}&search={{ search_term }}">Next</a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

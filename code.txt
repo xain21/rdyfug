@@ -1,0 +1,10 @@
+<div class="button-container d-flex align-items-center">
+            <!-- Logout Button -->
+            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Logout</button>
+            </form>
+
+            <!-- Go to Admin Button -->
+            <a href="{% url 'admin:index' %}" class="btn btn-primary ml-2">Go to Admin</a>
+        </div>

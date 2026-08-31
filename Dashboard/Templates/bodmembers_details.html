@@ -1,0 +1,259 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Montserrat");
+
+        h3 {
+            margin: 10px 0;
+        }
+
+        h6 {
+            margin: 5px 0;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 21px;
+        }
+
+        .card-container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0px 10px 20px -10px rgba(15, 15, 15, 0.75);
+            color: #b3b8cd;
+            padding-top: 30px;
+            position: relative;
+            width: 350px;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .card-container .pro {
+            color: #ffffff;
+            background-color: #febb0b;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 3px 7px;
+            position: absolute;
+            top: 30px;
+            left: 30px;
+        }
+
+        .card-container .round {
+            border: 1px solid #03bfcb;
+            border-radius: 50%;
+            padding: 7px;
+        }
+
+        button.primary {
+            background-color: #03bfcb;
+            border: 1px solid #03bfcb;
+            border-radius: 3px;
+            color: #231e39;
+            font-family: Montserrat, sans-serif;
+            font-weight: 500;
+            padding: 10px 25px;
+        }
+
+        button.primary.ghost {
+            background-color: transparent;
+            color: #02899c;
+        }
+
+        .skills {
+            background-color: #ffffff;
+            text-align: left;
+            padding: 15px;
+            margin-top: 30px;
+        }
+
+        .skills ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .skills ul li {
+            border: 1px solid #2d2747;
+            border-radius: 2px;
+            display: inline-block;
+            font-size: 12px;
+            margin: 0 7px 7px 0;
+            padding: 7px;
+        }
+
+        footer {
+            background-color: #ffffff;
+            color: #fff;
+            font-size: 14px;
+            bottom: 0;
+            position: fixed;
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 999;
+        }
+
+        footer p {
+            margin: 10px 0;
+        }
+
+        footer i {
+            color: red;
+        }
+
+        footer a {
+            color: #3c97bf;
+            text-decoration: none;
+        }
+
+        .chairman-style {
+            background-color: rgb(255, 255, 255);
+        }
+
+        .chiarmantags {
+            background-color: #000000 !important;
+        }
+
+        #personimg {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin: 10px;
+        }
+
+        span {
+            color: rgb(0, 0, 0);
+            font-weight: 700;
+        }
+
+        .member-details {
+            color: rgba(0, 0, 0, 0.623);
+        }
+
+        a.btn.btn-link {
+            margin-top: 10px;
+            margin-left: 30px;
+        }
+
+        .content-container {
+            color: var(#deecff);
+        }
+
+        .custom-back-button {
+            display: inline-flex;
+            align-items: center;
+            font-weight: bold;
+            text-decoration: none;
+            border: 2px solid #007bff;
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .custom-back-button i {
+            margin-right: 5px;
+        }
+
+        .custom-back-button:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-pdf {
+            background-color: #FF0000; /* Official Adobe PDF red */
+            border: none;
+            border-radius: 3px;
+            color: #FFFFFF; /* White text to contrast with red */
+            font-family: sans-serif;
+            font-weight: bold;
+            padding: 5px 10px;
+            text-decoration: none; /* Remove underline */
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-pdf:hover {
+            background-color: #CC0000; /* Darker red on hover */
+            color: #FFFFFF; /* White text on hover */
+        }
+    </style>
+
+    <a href="javascript:history.back()" class="btn btn-primary custom-back-button">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <a href="{% url 'view_members' %}" class="btn btn-primary custom-back-button">
+        <i class="fas fa-users"></i> See All Members
+    </a>
+    
+
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5" style="max-width: 600px">
+                <h1 class="mb-3">BOD Members</h1>
+            </div>
+            <div class="row g-4 wow fadeIn" data-wow-delay="0.05s">
+                {% for member in members %}
+                <div class="col-lg-3">
+                    <div class="card-container p-4 {% if member.designation_name.Designation_name == 'Chairman' %} chairman-style {% endif %}">
+                        <span class="pro {% if member.designation_name.Designation_name == 'Chairman' %} chiarmantags {% endif %}">
+                            {{ member.designation_name.Designation_name }}
+                        </span>
+                        <img class="round" id="personimg" 
+                            src="{% if member.image %}{{ member.image.url }}{% else %}{{ DEFAULT_IMAGE_URL }}{% endif %}" 
+                            alt="user" />
+                        <h5>{{ member.name }}</h5>
+                        <button class="btn btn-sm show-details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <div class="details" style="display: none; text-align: justify">
+                            <div class="member-details">
+                                <span>Department:</span> {{ member.department_name.Department_name|default:"No Department" }}
+                            </div>
+                            <div class="member-details">
+                                <span>Email:</span> {{ member.email }}
+                            </div>
+                            <div class="member-details">
+                                <span>Phone:</span> {{ member.phone }}
+                            </div>
+                            <div class="member-details">
+                                <span>Resume:</span>
+                                {% if member.resume %}
+                                    <a href="{{ member.resume.url }}" target="_blank" class="btn btn-pdf">
+                                        <i class="fas fa-file-pdf"></i> <!-- PDF icon -->
+                                    </a>
+                                {% else %}
+                                    <span>NA</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                    <div>No members available.</div>
+                {% endfor %}
+            </div>
+
+            <script>
+                document.querySelectorAll(".show-details").forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const details = button.nextElementSibling;
+                        if (details.style.display === "none" || details.style.display === "") {
+                            details.style.display = "block";
+                        } else {
+                            details.style.display = "none";
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>
+{% endblock %}

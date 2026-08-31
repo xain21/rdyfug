@@ -1,0 +1,46 @@
+{% extends 'index.html' %}
+{% load custom_filters %}
+{% block content %}
+<div class="container wow fadeIn" data-wow-delay="0.05s">
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-outline-primary btn-sm">&laquo; Previous</a>
+        <h3 class="mb-0">{{ month_name }} {{ year }}</h3>
+        <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-outline-primary btn-sm">Next &raquo;</a>
+      </div>
+
+      <table class="table table-bordered" style="table-layout: fixed;">
+        <thead class="table-light">
+          <tr>
+            <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for week in month_weeks %}
+          <tr>
+            {% for day in week %}
+              {% if day == 0 %}
+                <td style="height: 110px; background: #fafafa;"></td>
+              {% else %}
+                <td style="height: 110px; vertical-align: top;{% if day == today.day and month == today.month and year == today.year %} background: #eaf4ff;{% endif %}">
+                  <div style="font-weight: bold;">{{ day }}</div>
+                  {% with day_meetings=meetings_by_day|get_item:day %}
+                    {% for meeting in day_meetings %}
+                      <a href="{% url 'meeting_details' meeting.id %}" class="d-block small badge bg-primary mb-1" style="white-space: normal; text-align: left;">
+                        {{ meeting.title|truncatechars:28 }}
+                      </a>
+                    {% endfor %}
+                  {% endwith %}
+                </td>
+              {% endif %}
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="text-muted small">Click a meeting to view details, or open a meeting page to download an .ics file for your own calendar app.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
