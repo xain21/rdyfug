@@ -99,17 +99,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'BOD.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-
+DATABASES = { 'default': { 'ENGINE': 'django.db.backends.postgresql', 'NAME': os.environ.get('DB_NAME'), 'USER': os.environ.get('DB_USER'), 'PASSWORD': os.environ.get('DB_PASSWORD'), 'HOST': os.environ.get('DB_HOST'), 'PORT': os.environ.get('DB_PORT'), 'OPTIONS': {'sslmode': 'require'}, } }
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
